@@ -1,12 +1,12 @@
 # MediaMatcher.js
-### A lightweight and easy to use polyfill to combine Stylesheets (CSS) and JavaScripts (JS) using CSS3 Media Queries
+### A lightweight and easy to use polyfill to synchronize Stylesheets (CSS) and JavaScripts (JS) when using CSS3 Media Queries
 
 - Version: 1.0 
 - Created: 2012-01-04 
 - Author: Andreas Britten
 - Page: https://github.com/andreasBritten/MediaMatcher.js
 
-The main goal of this script was to change the behavior (JS) of a site at the same time it's layout (CSS) changes. In additon, the script should be easy to use, lightweight and it should utilize common CSS3 Media Query syntax.
+The main goal of this script was to change the behavior (JS) of a site immediately after it's layout (CSS) changes. In additon, the script should be easy to use, lightweight and it should utilize common CSS3 Media Query syntax.
 
 The script provides native Media Query matching if the browser supports it. Also, the script provides a simple "min-width" and "max-width" matching for browsers like Internet Explorer 7 which does not support media queries.
 
@@ -118,10 +118,10 @@ How does it work?
 ======
 
 CSS: 
- - MediaMatcher simply adds and removes &lt;link&lt; tags into your &lt;head&lt; tag
+ - MediaMatcher simply adds and removes &lt;link&lt; tags into your &lt;head&gt; tag
  
 JS: 
- - MediaMatcher simply adds and removes &lt;script&lt; tags into your &lt;head&lt; tag
+ - MediaMatcher simply adds and removes &lt;script&lt; tags into your &lt;head&gt; tag
 
 OBJ: 
  - If the associated MediaQuery matches "onMatch" is triggerd. If it doesn't match anymore "onUnmatch" will be triggerd. "onInit" will be triggerd immediately before the first "onMatch" is called.
@@ -131,4 +131,4 @@ Final words
 
 Because it is our first version of the script we really would appreciate some experiences and suggestions for improvements from you guys :)
 
-Please check out some other great CSS3 Media Query polyfill scripts like [response.js](https://github.com/scottjehl/Respond), [css3-mediaqueries-js](http://code.google.com/p/css3-mediaqueries-js/) and [EnhanceJS](http://filamentgroup.com/lab/introducing_enhancejs_smarter_safer_apply_progressive_enhancement/). We took some inspirations from those scripts so big props to the authors! :)
+Please check out some other great CSS3 Media Query polyfill scripts like [response.js](https://github.com/scottjehl/Respond), [css3-mediaqueries-js](http://code.google.com/p/css3-mediaqueries-js/) and [EnhanceJS](http://filamentgroup.com/lab/introducing_enhancejs_smarter_safer_apply_progressive_enhancement/). We took some inspirations from those scripts so big props to the coders! :)
