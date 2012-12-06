@@ -30,7 +30,7 @@ You are ready to use MediaMatcher after six steps:
 2. Create a new MediaMatcher Object. Pass your media queries as key values of an object and add to them all "CSS" (css), "JavaScript" (js) and "MatchObjects" (obj) you want to load/unload if the associated query matches/unmatches ("MatchObjects" are explained below).
 
 <pre>
-	&lt;script&lt;
+	&lt;script&gt;
 		var mediaMatcher = new MediaMatcher({			
 			'screen and (min-width: 0px) and (max-width: 600px)': {
 				'css': ['./css/mobile.css'],
@@ -86,7 +86,7 @@ You are ready to use MediaMatcher after six steps:
 
 <pre>
 		mediaMatcher.init();
-	&lt;/script&lt;
+	&lt;/script&gt;
 </pre>
 
 What is a "MatchObject"?
