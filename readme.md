@@ -126,6 +126,7 @@ JS:
 OBJ: 
  - If the associated MediaQuery matches "onMatch" is triggerd. If it doesn't match anymore "onUnmatch" will be triggerd. "onInit" will be triggerd immediately before the first "onMatch" is called.
 
+Final words
 ======
 
 Because it is our first version of the script we really would appreciate some experiences and suggestions for improvements from you guys :)
