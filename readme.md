@@ -19,15 +19,15 @@ Building pages with a [responsive web design](http://www.webdesignshock.com/resp
 How to use?
 ======
 
-You are ready to use MediaMatcher after six steps: 
+You are ready to use MediaMatcher after these steps: 
 
-1. Download and add MediaMatcher.js to your site
+ - Download and add MediaMatcher.js to your site
 
 <pre>	
 	&lt;script type="text/javascript" src="./MediaMatchter.js"&gt;&lt;/script&gt;	
 </pre>
 
-2. Create a new MediaMatcher Object. Pass your media queries as key values of an object and add to them all "CSS" (css), "JavaScript" (js) and "MatchObjects" (obj) you want to load/unload if the associated query matches/unmatches ("MatchObjects" are explained below).
+ - Create a new MediaMatcher Object. Pass your media queries as key values of an object and add to them all "CSS" (css), "JavaScript" (js) and "MatchObjects" (obj) you want to load/unload if the associated query matches/unmatches ("MatchObjects" are explained below).
 
 <pre>
 	&lt;script&gt;
@@ -62,7 +62,7 @@ You are ready to use MediaMatcher after six steps:
 		});
 </pre>
 
-3. Define which type of files you would like to load/unload/trigger dynamically on resizing the browser and which you would like to load and trigger just once when the page is loaded.
+ - Define which type of files you would like to load/unload/trigger dynamically on resizing the browser and which you would like to load and trigger just once when the page is loaded.
 
 <pre>
 		mediaMatcher.dynamicLoadCss(true);
@@ -70,19 +70,19 @@ You are ready to use MediaMatcher after six steps:
 		mediaMatcher.dynamicTriggerObj(true);	
 </pre>
 
-4. Define in ms how long MediaMatchter should wait during window-resizing before it calculates it's new state. A value of 0ms means that the new state is calculated on every window-resize event providing a seemless response. By increasing the time you can achieve certain effects: Lower your data stream and improve the overall performance. For us a value of 75ms was a perfect compromise. Just try what time works best for you :)
+ - Define in ms how long MediaMatchter should wait during window-resizing before it calculates it's new state. A value of 0ms means that the new state is calculated on every window-resize event providing a seemless response. By increasing the time you can achieve certain effects: Lower your data stream and improve the overall performance. For us a value of 75ms was a perfect compromise. Just try what time works best for you :)
 
 <pre>
 	mediaMatcher.waitBeforeDynamicLoad(75);	
 </pre>
 
-5. Define if MediaMatcher should wait until all CSS files are loaded before the associated "MatchObject" is triggerd. You can also define a timeout in ms if the CSS is for some reason not available or took forever to load. WARNING: This only works correctly when a webserver delivers the CSS file (Apache, Tomcat, ...). On a lokal filesystem we saw some problems with this feature in some browsers (Chrome for example ). Also, it will not wait for CSS files you inclueded by an @import statement inside the loaded CSS file.
+ - Define if MediaMatcher should wait until all CSS files are loaded before the associated "MatchObject" is triggerd. You can also define a timeout in ms if the CSS is for some reason not available or took forever to load. WARNING: This only works correctly when a webserver delivers the CSS file (Apache, Tomcat, ...). On a lokal filesystem we saw some problems with this feature in some browsers (Chrome for example ). Also, it will not wait for CSS files you inclueded by an @import statement inside the loaded CSS file.
 
 <pre>
 	mediaMatcher.waitForCssIsLoaded(true,1000);
 </pre>
 
-6. Initialize (start up) your MediaMatcher and your done!
+ - Initialize (start up) your MediaMatcher and your done!
 
 <pre>
 		mediaMatcher.init();
