@@ -1,0 +1,59 @@
+html,body{
+	
+	margin: 0;
+	padding: 0;
+	font-family: Verdana,Arial;
+	font-size: 13px;
+}
+#button{
+	background: #fff;
+	color: #000;
+	text-align: center;
+	width:100%;
+}
+h1{
+	font-size: 17px;
+	text-align: center;
+}
+#wrapper{
+margin-left:auto;
+margin-right:auto;
+width: 500px;
+}
+#infobox{
+    height: 150px;
+    width: 150px;
+	margin-left:auto;
+	margin-right:auto;
+	margin-bottom: 20px;
+    margin-top: 20px;
+}
+#log{
+	font-size: 9px;
+}
+.foo{	
+	font-size: 9px;
+}
+#info{
+	text-align: center;
+	font-weight: bold;
+	width:100%;
+}
+#buttonDiv{
+	text-align: center;
+	font-weight: bold;
+	width:100%;
+}
+p{
+	margin: 0;
+	padding: 0;
+}
+h2{
+	font-size: 11px;
+	margin:0;
+	padding:0;
+}
+#logger{
+	background: #eee;
+	margin-top: 15px;
+}

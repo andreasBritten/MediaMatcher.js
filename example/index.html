@@ -1,0 +1,103 @@
+<html>
+	<head>
+		<!-- link all static loaded script and css files -->
+		<link rel="stylesheet" type="text/css" href="css/default.css">
+		<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+
+		<!-- link the MediaMatchter.js -->
+		<script type="text/javascript" src="../src/MediaMatcher.js"></script>
+	</head>
+<body>
+<div id="wrapper">
+	<h1 id="headline"></h1>	
+	<div class="info" id="info"></div>
+	<div id="buttonDiv"><a id="button" href="#">Click me to reveal the current color of the box</a></div>
+	<div id="infobox"></div>		
+	<div class="foo">if width &lt; 600px = red box</div>
+	<div class="foo">if width &gt; 600px = blue box</div>
+	<div id="logger">
+		<h2>Trigger-Logging:</h2>
+		<div id="log"><p></p></div>
+	</div>
+	
+</div>
+<script>
+    // Create a new MediaMatcher Object.
+    // Pass your media queries as key values of an object and add to them all "CSS" (css),
+    // "JavaScript" (js) and "MatchObject" (obj) you want to load/unload or triggered
+    // if the associated query matches/unmatches.
+    // You can also select the device for each query like so ::device::
+    // MatchObject's (obj) can be define by passing the URL to an JSON-Object or by adding the object itself.
+    var mediaMatcher = new MediaMatcher({
+        'screen and (min-width: 0px) and (max-width: 600px)': {
+            'js':  ['./js/red.js'],
+            'css': ['./css/red.css'],
+            'obj': [{
+					onInit: function(){
+						$("#log p:nth-child(1)").after("<p>obj.onInit() @ red</p>");
+					},
+					onMatch: function(){		
+						$("#button").show().bind('click', function(){
+							$("#info").html("The Box is now RED!");
+							$(this).hide();
+							return false;
+						});
+						$("#log p:nth-child(1)").after("<p>obj.onMatch() @ red</p>");
+					},
+					onUnmatch: function(){	
+						$("#button").unbind('click');
+						$("#info").html("The color of the box has changed!");
+						$("#log p:nth-child(1)").after("<p>obj.onUnmatch() @ red</p>");
+					}
+				}]
+        },
+        'screen and (min-width: 601px)': {
+            'js': 	['./js/blue.js'],
+            'css': 	['./css/blue.css'],
+            'obj': 	[{
+					onInit: function(){
+						$("#log p:nth-child(1)").after("<p>obj.onInit() @ blue</p>");
+					},
+					onMatch: function(){
+						$("#button").show().bind('click', function(){
+							$("#info").html("The Box is now BLUE!");
+							$(this).hide();
+							return false;
+						});
+						$("#log p:nth-child(1)").after("<p>obj.onMatch() @ blue</p>");
+					},
+					onUnmatch: function(){
+						$("#button").unbind('click');
+						$("#info").html("The color of the box has changed!");
+						$("#log p:nth-child(1)").after("<p>obj.onUnmatch() @ blue</p>");
+					}
+				}]
+		}
+    });
+
+    // Define which type of files you would like to load/unload or trigger dynamically on resizing the browser
+    // and which you would like to load and trigger just once when the page is loaded on the first time.
+    mediaMatcher.dynamicLoadCss(true);
+    mediaMatcher.dynamicLoadJS(false);
+    mediaMatcher.dynamicTriggerObj(true);
+
+    // Define if the User-Agent-Information should be displayed.
+    mediaMatcher.setShowInfo(false);
+
+    // Define if the Javascript should only be loaded/triggered after the CSS was completely loaded.
+	// Define a maxTime to wait (for example 500ms) for your CSS is loaded and integrated into the DOM.
+	// WARNING: This only works correctly when a webserver delivers the CSS file (Apache, Tomcat, ...). 
+	// On a lokal filesystem we saw some problems with this feature in some browsers (Chrome for example ).
+    mediaMatcher.waitForCssIsLoaded(true,500);
+
+    // Define in ms how long MediaMatchter should wait during window-resizing before it calculates it's new state.
+    // A value of 0ms means that the new state is calculated on every window-resize event providing a seemless response.
+    // By increasing the time you can achieve certain effects, lower your data stream and improve the overall performance.
+    // Just try what time works best for you.
+    mediaMatcher.waitBeforeDynamicLoad(0);
+
+    // initialize and start up your MediaMatcher
+    mediaMatcher.init();
+</script>
+</body>
+</html>
