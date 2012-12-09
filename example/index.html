@@ -1,11 +1,12 @@
 <html>
 	<head>
+		<title>MediaMatcher - Example</title>
 		<!-- link all static loaded script and css files -->
 		<link rel="stylesheet" type="text/css" href="css/default.css">
 		<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
 
 		<!-- link the MediaMatchter.js -->
-		<script type="text/javascript" src="../src/MediaMatcher.js"></script>
+		<script type="text/javascript" src="../src/MediaMatcher.min.js"></script>
 	</head>
 <body>
 <div id="wrapper">
@@ -13,8 +14,10 @@
 	<div class="info" id="info"></div>
 	<div id="buttonDiv"><a id="button" href="#">Click me to reveal the current color of the box</a></div>
 	<div id="infobox"></div>		
-	<div class="foo">if width &lt; 600px = red box</div>
-	<div class="foo">if width &gt; 600px = blue box</div>
+	<div class="foo">000px - 600px = red box</div>
+	<div class="foo">601px - 800px = blue box</div>
+	<div class="foo">801px - XXXpx = green box</div>
+	<p class="page">Project-Page: <a href="http://andreasbritten.github.com/MediaMatcher.js/">http://andreasbritten.github.com/MediaMatcher.js/</a></p>
 	<div id="logger">
 		<h2>Trigger-Logging:</h2>
 		<div id="log"><p></p></div>
@@ -34,7 +37,7 @@
             'css': ['./css/red.css'],
             'obj': [{
 					onInit: function(){
-						$("#log p:nth-child(1)").after("<p>obj.onInit() @ red</p>");
+						$("#log p:nth-child(1)").after('<p class="red">obj.onInit() @ red</p>');
 					},
 					onMatch: function(){		
 						$("#button").show().bind('click', function(){
@@ -42,21 +45,21 @@
 							$(this).hide();
 							return false;
 						});
-						$("#log p:nth-child(1)").after("<p>obj.onMatch() @ red</p>");
+						$("#log p:nth-child(1)").after('<p class="red">obj.onMatch() @ red</p>');
 					},
 					onUnmatch: function(){	
 						$("#button").unbind('click');
 						$("#info").html("The color of the box has changed!");
-						$("#log p:nth-child(1)").after("<p>obj.onUnmatch() @ red</p>");
+						$("#log p:nth-child(1)").after('<p class="red">obj.onUnmatch() @ red</p>');
 					}
 				}]
         },
-        'screen and (min-width: 601px)': {
+        'screen and (min-width: 601px) and (max-width: 800px)': {
             'js': 	['./js/blue.js'],
             'css': 	['./css/blue.css'],
             'obj': 	[{
 					onInit: function(){
-						$("#log p:nth-child(1)").after("<p>obj.onInit() @ blue</p>");
+						$("#log p:nth-child(1)").after('<p class="blue">obj.onInit() @ blue</p>');
 					},
 					onMatch: function(){
 						$("#button").show().bind('click', function(){
@@ -64,12 +67,34 @@
 							$(this).hide();
 							return false;
 						});
-						$("#log p:nth-child(1)").after("<p>obj.onMatch() @ blue</p>");
+						$("#log p:nth-child(1)").after('<p class="blue">obj.onMatch() @ blue</p>');
 					},
 					onUnmatch: function(){
 						$("#button").unbind('click');
 						$("#info").html("The color of the box has changed!");
-						$("#log p:nth-child(1)").after("<p>obj.onUnmatch() @ blue</p>");
+						$("#log p:nth-child(1)").after('<p class="blue">obj.onUnmatch() @ blue</p>');
+					}
+				}]
+		},
+		'screen and (min-width: 801px)': {
+            'js': 	['./js/green.js'],
+            'css': 	['./css/green.css'],
+            'obj': 	[{
+					onInit: function(){
+						$("#log p:nth-child(1)").after('<p class="green">obj.onInit() @ green</p>');
+					},
+					onMatch: function(){
+						$("#button").show().bind('click', function(){
+							$("#info").html("The Box is now GREEN!");
+							$(this).hide();
+							return false;
+						});
+						$("#log p:nth-child(1)").after('<p class="green">obj.onMatch() @ green</p>');
+					},
+					onUnmatch: function(){
+						$("#button").unbind('click');
+						$("#info").html("The color of the box has changed!");
+						$("#log p:nth-child(1)").after('<p class="green"> obj.onUnmatch() @ green</p>');
 					}
 				}]
 		}
@@ -88,7 +113,7 @@
 	// Define a maxTime to wait (for example 500ms) for your CSS is loaded and integrated into the DOM.
 	// WARNING: This only works correctly when a webserver delivers the CSS file (Apache, Tomcat, ...). 
 	// On a lokal filesystem we saw some problems with this feature in some browsers (Chrome for example ).
-    mediaMatcher.waitForCssIsLoaded(true,500);
+    mediaMatcher.waitForCssIsLoaded(true,1000);
 
     // Define in ms how long MediaMatchter should wait during window-resizing before it calculates it's new state.
     // A value of 0ms means that the new state is calculated on every window-resize event providing a seemless response.

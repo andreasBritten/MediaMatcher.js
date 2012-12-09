@@ -4,9 +4,9 @@
  * Project-Page: https://github.com/andreasBritten/MediaMatcher.js
  * 
  * Created:		2012-01-04	
- * Modified:	2012-01-04
+ * Modified:	2012-12-09
  *
- * @version 1.0
+ * @version 1.1
  * @author Andreas Britten
  */
 var mediaMatcherObjectCount = 0;
@@ -19,13 +19,14 @@ function MediaMatcher(matchObject){
 	this.loadDynamicJS = true;
 	this.initialLoad = true;
 	this.waitingTime = 0;
-    this.showInfo = false;
-    this.infoBox = null;
+	this.showInfo = false;
+	this.infoBox = null;
 	this.timer = null;
-    this.lazyCssLoad = false;
-    this.lazyCssLoadMaxTime = 20000;
-    this.info = '';
-    this.device = "desktop";
+	this.loadingInterval = null;
+	this.lazyCssLoad = false;
+	this.lazyCssLoadMaxTime = 20000;
+	this.info = '';
+	this.device = "desktop";
 	this.id = "matcher"+mediaMatcherObjectCount;
 	mediaMatcherObjectCount+=1;	
 };
@@ -36,8 +37,17 @@ MediaMatcher.prototype = {
 		for( var query in this.matcher){	
 			this.queryObjects.push( { 
 				isMatching: false,
-				isLoaded: false,				
-				id : 'query' + id,
+				isCssInDom: false,
+				isCssLoaded: false,
+				isJsInDom: false,
+				isJsLoaded: false,				
+				isLoaded: false,
+				isLoading: false,
+				isUnloading: false,
+				id : 'query' + id,				
+				styleLoadedInterval: null,
+				styleLoadedIntervalTime: 0,
+				jsLoadedCnt: 0,
 				device: query.match(/(::)(.*)(::).*/) && RegExp.$2 || "all",
 				queryString	: query.match(/(::.*::\s*)?(.*)/) && RegExp.$2 || "screen",
 				media	: query.match(/(only\s+)?([a-zA-Z]+)(\sand)?[\s]*[\(]/) && RegExp.$2 || 'screen',
@@ -52,7 +62,7 @@ MediaMatcher.prototype = {
 		}
 		if(this.loadDynamicCss || this.loadDynamicObj || this.loadDynamicJS){			
 			var callbackFunction = this.getResizeCallback();
-            if(window.orientation != undefined) window.onorientationchange = callbackFunction;
+			if(window.orientation != undefined) window.onorientationchange = callbackFunction;
 			else if(window.addEventListener) window.addEventListener( "resize", callbackFunction, false );
 			else if(window.attachEvent) window.attachEvent( "onresize", callbackFunction);
 		}
@@ -62,32 +72,93 @@ MediaMatcher.prototype = {
 	updateMedia: function(){
         var that = this;
 		if(this.timer != null){window.clearTimeout(this.timer); this.timer=null;};
+		
+		var matching = [];
+		var unmatching = [];	
+		var falseLoading = [];	
+		var falseUnloading = [];
+		
 		for( var index in this.queryObjects){
 			var currentObject = this.queryObjects[index];
-			currentObject.isMatching = this.matchingDevice(currentObject) && this.matchingMedia(currentObject);
-			if(!currentObject.isMatching){
-				if(currentObject.isLoaded){
-                    this.clearStyleLoadedTimer(currentObject);
-					if(this.loadDynamicObj)this.unloadObjects(currentObject);
-					if(this.loadDynamicJS)this.unloadJS(currentObject);
-					if(this.loadDynamicCss)this.unloadStyles(currentObject);											
-					currentObject.isLoaded = false;
-				}
-			}
+			currentObject.isMatching = this.matchingDevice(currentObject) && this.matchingMedia(currentObject);		
+			if(currentObject.isMatching && currentObject.isUnloading) falseUnloading.push(currentObject);
+			if(!currentObject.isMatching && currentObject.isLoading) falseLoading.push(currentObject);
 		}
+		
+		for( var index in falseLoading){
+			var currentObject = falseLoading[index];
+			this.clearStyleLoadedTimer(currentObject);
+			this.unloadStyles(currentObject);
+			currentObject.isLoading = false;
+			currentObject.isLoaded = false;
+		}
+		
+		for( var index in falseUnloading){
+			var currentObject = falseUnloading[index]; 
+			currentObject.isUnloading = false; //isCssLoaded verhindert ein doppeltes einbinden der CSSe			
+		}
+		
 		for( var index in this.queryObjects){
-			var currentObject = this.queryObjects[index];
-			if(currentObject.isMatching){
-				if(!currentObject.isLoaded){
-                    currentObject.isLoaded = true;
-                    (function(currentObject, that, initialLoad){
-                        if(initialLoad || that.loadDynamicCss)that.loadStyles(currentObject,function(){
-                            if(initialLoad || that.loadDynamicJS)that.loadJS(currentObject);
-                            if(initialLoad || that.loadDynamicObj)that.loadObjects(currentObject,0);
-                        });
-                    })(currentObject,that,this.initialLoad);
-				}
+			var currentObject = this.queryObjects[index];		
+			if(currentObject.isMatching && !currentObject.isLoaded) matching.push(currentObject);
+			if(!currentObject.isMatching && currentObject.isLoaded) unmatching.push(currentObject);	
+		}
+		
+		var hasMatching = matching.length > 0;
+		var hasUnmatching = unmatching.length > 0;
+				
+		for( var index in unmatching){
+			var currentObject = unmatching[index];			
+			if(this.loadDynamicObj) this.unloadObjects(currentObject);
+			if(this.loadDynamicJS) this.unloadJS(currentObject);			
+			if(this.loadDynamicCss && !hasMatching){ 
+				this.unloadStyles(currentObject);
+				currentObject.isUnloading = false;
+			} else if(this.loadDynamicCss){
+				currentObject.isUnloading = true;
 			}
+			currentObject.isLoaded = false;
+		}
+		
+		for( var index in matching){
+			var currentObject = matching[index];			
+			currentObject.isLoading = true;
+			(function(initialLoad){				
+				that.loadStyles(initialLoad,currentObject,function(){					
+					var currentLoading = [];
+					var currentUnloading = [];
+					for( var i in that.queryObjects){
+						var currentObj = that.queryObjects[i];
+						if(!currentObj.isMatching && currentObj.isUnloading) currentUnloading.push(currentObj);
+						if(currentObj.isMatching && currentObj.isLoading) currentLoading.push(currentObj);			
+					}
+					var allLoaded = true;
+					for( var i in currentLoading){
+						var currentObj = currentLoading[i];
+						if(!currentObj.isCssLoaded){
+							allLoaded = false;
+							break;
+						}
+					}					
+					if(allLoaded){
+						for( var i in currentUnloading){
+							if(that.loadDynamicCss){ 
+								var currentObj = currentUnloading[i];
+								that.unloadStyles(currentObj);
+								currentObj.isUnloading = false;
+							}							
+						}
+						for( var i in currentLoading){
+							var currentObj = currentLoading[i];							
+							that.loadJS(initialLoad, currentObj, function(){
+								if(initialLoad || that.loadDynamicObj)that.loadObjects(currentObj,0);							
+								currentObj.isLoading = false;
+							});							
+						}
+					}					
+				});				
+			})(this.initialLoad);
+			currentObject.isLoaded = true;
 		}
 		this.initialLoad = false;
 	},
@@ -121,20 +192,32 @@ MediaMatcher.prototype = {
 		}
 		return callback;
 	},
+	
+	loadingMatching: function(initialLoad){
+
+	},
 
     clearStyleLoadedTimer: function(queryObject){
-        if(queryObject.styleLoadedIntervall !== null){
-            window.clearInterval(queryObject.styleLoadedIntervall);
-            queryObject.styleLoadedIntervall = null;
-        }
-        queryObject.styleLoadedIntervallTime = 0;
+        if(queryObject.styleLoadedInterval != null){
+            window.clearInterval(queryObject.styleLoadedInterval);
+            queryObject.styleLoadedInterval = null;
+        }		
+        queryObject.styleLoadedIntervalTime = 0;
     },
+	
+	getLoadedStyles: function(){
+		var result = [];
+		for(var index in this.queryObjects){
+			if(this.queryObjects[index].isCssLoaded) result.push(this.queryObjects[index]);
+		}
+		return result;
+	},
 
     styleLoaded: function(queryObject, links, callback){
         var that = this;
-        var timeToWait = 50;
+        var timeToWait = 25;
         this.clearStyleLoadedTimer(queryObject);
-        queryObject.styleLoadedIntervall = window.setInterval(function(){
+        queryObject.styleLoadedInterval = window.setInterval(function(){
             var done = [];
             for(var i in links){
                 done[i] = false;
@@ -146,62 +229,93 @@ MediaMatcher.prototype = {
             }
             var loaded = true;
             for(var i in done) if(done[i] == false){loaded = false; break;}
-            if(loaded === true || queryObject.styleLoadedIntervallTime >= that.lazyCssLoadMaxTime){
+            if(loaded === true || queryObject.styleLoadedIntervalTime >= that.lazyCssLoadMaxTime){
                 that.clearStyleLoadedTimer(queryObject);
                 if(queryObject.isMatching) callback();
             }
-            queryObject.styleLoadedIntervallTime += timeToWait;
+            queryObject.styleLoadedIntervalTime += timeToWait;
         },timeToWait);
     },
 
-	loadStyles: function(queryObject, callback){
+	loadStyles: function(initialLoad, queryObject, callback){
 		var headElement = document.getElementsByTagName("head")[0];
 		if(headElement){
             var links = [];
-			for(var index in queryObject['css']){
-				var link = document.createElement("link");
-				link.rel = "stylesheet";
-				link.type = "text/css";
-				link.id = this.id+'.'+queryObject.id+'.css'+index;
-				link.href = queryObject['css'][index];
-				headElement.appendChild(link);
-                links.push(link);
+			if((initialLoad || this.loadDynamicCss) && !queryObject.isCssInDom){
+				for(var index in queryObject['css']){
+					var link = document.createElement("link");
+					link.rel = "stylesheet";
+					link.type = "text/css";
+					link.id = this.id+'.'+queryObject.id+'.css'+index;
+					link.href = queryObject['css'][index];
+					headElement.appendChild(link);
+					links.push(link);
+				}
+				if(links.length > 0) queryObject.isCssInDom = true;
 			}
-            if(this.lazyCssLoad && links.length > 0) this.styleLoaded(queryObject,links,callback);
-            else callback();
+			var callbackFunc = function(){
+				queryObject.isCssLoaded = true;				
+				callback();
+			};
+            if(this.lazyCssLoad && links.length > 0) this.styleLoaded(queryObject,links,callbackFunc);
+            else callbackFunc();
 		}
 	},
 
 	unloadStyles: function(queryObject){
 		var headElement = document.getElementsByTagName("head")[0];
-		if(headElement){
+		if(headElement && queryObject.isCssInDom){
 			for(var index in queryObject['css']){
 				var linkElement = document.getElementById(this.id+'.'+queryObject.id+'.css'+index);
 				headElement.removeChild(linkElement);
 			}
+			queryObject.isCssInDom = false;
+			queryObject.isCssLoaded = false;
 		}
 	},
-
-	loadJS: function(queryObject){
+	
+	unloadAllStyles: function(objects){
+		for(var index in objects){
+			this.unloadStyles(objects[index]);
+		}
+	},
+	
+	loadJS: function(initialLoad, queryObject, callback){
 		var headElement = document.getElementsByTagName("head")[0];
 		if(headElement){
-			for(var index in queryObject['js']){
-				var script = document.createElement("script");
-				script.type = "text/javascript";
-				script.id = this.id+'.'+queryObject.id+'.js'+index;
-				script.src = queryObject['js'][index];
-				headElement.appendChild(script);
-			}
+			if((initialLoad || this.loadDynamicJS) && !queryObject.isJsInDom && queryObject['js'].length > 0){
+				queryObject.jsLoadedCnt = 0;
+				var callbackFunc = function(){
+					queryObject.jsLoadedCnt+=1;
+					if(queryObject.jsLoadedCnt == queryObject.js.length) callback();
+				};				
+				for(var index in queryObject['js']){
+					var script = document.createElement("script");
+					script.type = "text/javascript";
+					script.id = this.id+'.'+queryObject.id+'.js'+index;
+					script.src = queryObject['js'][index];
+					if(script.addEventListener) {
+					  script.addEventListener("load",callbackFunc,false);
+					}else if(script.readyState){
+					  script.onreadystatechange = callbackFunc;
+					}					
+					headElement.appendChild(script);
+				}
+				queryObject.isJsInDom = true;
+			}else{
+				callback();
+			}			
 		}
 	},
 
 	unloadJS: function(queryObject){
 		var headElement = document.getElementsByTagName("head")[0];
-		if(headElement){
+		if(headElement && queryObject.isJsInDom){
 			for(var index in queryObject['js']){
 				var scriptElement = document.getElementById(this.id+'.'+queryObject.id+'.js'+index);
 				headElement.removeChild(scriptElement);
 			}
+			queryObject.isJsInDom = false;
 		}
 	},
 

@@ -1,10 +1,12 @@
 # MediaMatcher.js
 ### A lightweight and easy to use polyfill to synchronize Stylesheets (CSS) and JavaScripts (JS) when using CSS3 Media Queries
 
-- Version: 1.0 
+- Version: 1.1 
 - Created: 2012-01-04 
+- Updated: 2012-12-09 
 - Author: Andreas Britten
-- Page: https://github.com/andreasBritten/MediaMatcher.js
+- Project: https://github.com/andreasBritten/MediaMatcher.js
+- Example: http://andreas-britten.de/mediamatcher/example/index.html
 
 The main goal of this script was to change the behavior (JS) of a site immediately after it's layout (CSS) changes. In additon, the script should be easy to use, lightweight and it should utilize common CSS3 Media Query syntax.
 
@@ -12,7 +14,7 @@ The script provides native Media Query matching if the browser supports it. Also
 
 So far we tested the script successfully on the current Firefox, Chrome, Opera, Safari and Internet Explorer 7-9. 
 
-We included a example to give you a impression of how the script works and what you can do with it.
+We included a [example](http://andreas-britten.de/mediamatcher/example/index.html) to give you a impression of how the script works and what you can do with it.
 
 Building pages with a [responsive web design](http://www.webdesignshock.com/responsive-web-design/) can be a difficult task when you want to trigger JavaScript after your Stylesheets is loaded. So I hope my script can help you with this task :)
 
@@ -118,10 +120,10 @@ How does it work?
 ======
 
 CSS: 
- - MediaMatcher simply adds and removes &lt;link&lt; tags into your &lt;head&gt; tag
+ - MediaMatcher simply adds and removes &lt;link&gt; tags into your &lt;head&gt; tag
  
 JS: 
- - MediaMatcher simply adds and removes &lt;script&lt; tags into your &lt;head&gt; tag
+ - MediaMatcher simply adds and removes &lt;script&gt; tags into your &lt;head&gt; tag
 
 OBJ: 
  - If the associated MediaQuery matches "onMatch" is triggerd. If it doesn't match anymore "onUnmatch" will be triggerd. "onInit" will be triggerd immediately before the first "onMatch" is called.
