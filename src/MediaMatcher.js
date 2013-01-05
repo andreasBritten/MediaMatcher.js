@@ -12,11 +12,12 @@
 var mediaMatcherObjectCount = 0;
 
 function MediaMatcher(matchObject){		
-	this.queryObjects = [];		
-	this.matcher = matchObject;		
+	this.queryObjects = [];
+	this.nativeQuerySupport = false;
+	this.matcher = matchObject;			
 	this.loadDynamicCss = true;	
 	this.loadDynamicObj = true;
-	this.loadDynamicJS = true;
+	this.loadDynamicJS = true;	
 	this.initialLoad = true;
 	this.waitingTime = 0;
 	this.showInfo = false;
@@ -27,13 +28,14 @@ function MediaMatcher(matchObject){
 	this.lazyCssLoadMaxTime = 20000;
 	this.info = '';
 	this.device = "desktop";
-	this.id = "matcher"+mediaMatcherObjectCount;
+	this.id = "matcher"+mediaMatcherObjectCount;	
 	mediaMatcherObjectCount+=1;	
 };
 MediaMatcher.prototype = {
 	init: function(){
 		var id = 0;
 		this.device = this.getDeviceCookie() || this.detectDevice();
+		this.nativeQuerySupport = window.matchMedia && this.nativeQuerySupport ? true : false;
 		for( var query in this.matcher){	
 			this.queryObjects.push( { 
 				isMatching: false,
@@ -53,7 +55,7 @@ MediaMatcher.prototype = {
 				media	: query.match(/(only\s+)?([a-zA-Z]+)(\sand)?[\s]*[\(]/) && RegExp.$2 || 'screen',
 				minWidth	: query.match(/\(min\-width:[\s]*([\s]*[0-9]+)px[\s]*\)/) && parseFloat(RegExp.$1) || 0, 
 				maxWidth	: query.match(/\(max\-width:[\s]*([\s]*[0-9]+)px[\s]*\)/) && parseFloat(RegExp.$1) || Number.MAX_VALUE,				
-				js : this.matcher[query]['js'] || [],
+				js  : this.matcher[query]['js'] || [],
 				obj : this.matcher[query]['obj'] || [],				
 				css : this.matcher[query]['css'] || [],
 				ref : []
@@ -66,25 +68,31 @@ MediaMatcher.prototype = {
 			else if(window.addEventListener) window.addEventListener( "resize", callbackFunction, false );
 			else if(window.attachEvent) window.attachEvent( "onresize", callbackFunction);
 		}
+		if(this.nativeQuerySupport && this.loadDynamicCss){
+			for( var index in this.queryObjects){
+				var currentObject = this.queryObjects[index];
+				this.loadStyles(true,currentObject,function(){});
+			}
+		}
 		this.updateMedia();
 	},
 
 	updateMedia: function(){
-        var that = this;
+		var that = this;
 		if(this.timer != null){window.clearTimeout(this.timer); this.timer=null;};
-		
+
 		var matching = [];
 		var unmatching = [];	
 		var falseLoading = [];	
 		var falseUnloading = [];
-		
+
 		for( var index in this.queryObjects){
 			var currentObject = this.queryObjects[index];
 			currentObject.isMatching = this.matchingDevice(currentObject) && this.matchingMedia(currentObject);		
 			if(currentObject.isMatching && currentObject.isUnloading) falseUnloading.push(currentObject);
 			if(!currentObject.isMatching && currentObject.isLoading) falseLoading.push(currentObject);
 		}
-		
+
 		for( var index in falseLoading){
 			var currentObject = falseLoading[index];
 			this.clearStyleLoadedTimer(currentObject);
@@ -92,18 +100,18 @@ MediaMatcher.prototype = {
 			currentObject.isLoading = false;
 			currentObject.isLoaded = false;
 		}
-		
+
 		for( var index in falseUnloading){
 			var currentObject = falseUnloading[index]; 
 			currentObject.isUnloading = false; //isCssLoaded verhindert ein doppeltes einbinden der CSSe			
 		}
-		
+
 		for( var index in this.queryObjects){
 			var currentObject = this.queryObjects[index];		
 			if(currentObject.isMatching && !currentObject.isLoaded) matching.push(currentObject);
 			if(!currentObject.isMatching && currentObject.isLoaded) unmatching.push(currentObject);	
 		}
-		
+
 		var hasMatching = matching.length > 0;
 		var hasUnmatching = unmatching.length > 0;
 				
@@ -119,7 +127,7 @@ MediaMatcher.prototype = {
 			}
 			currentObject.isLoaded = false;
 		}
-		
+
 		for( var index in matching){
 			var currentObject = matching[index];			
 			currentObject.isLoading = true;
@@ -192,10 +200,6 @@ MediaMatcher.prototype = {
 		}
 		return callback;
 	},
-	
-	loadingMatching: function(initialLoad){
-
-	},
 
     clearStyleLoadedTimer: function(queryObject){
         if(queryObject.styleLoadedInterval != null){
@@ -204,14 +208,6 @@ MediaMatcher.prototype = {
         }		
         queryObject.styleLoadedIntervalTime = 0;
     },
-	
-	getLoadedStyles: function(){
-		var result = [];
-		for(var index in this.queryObjects){
-			if(this.queryObjects[index].isCssLoaded) result.push(this.queryObjects[index]);
-		}
-		return result;
-	},
 
     styleLoaded: function(queryObject, links, callback){
         var that = this;
@@ -241,15 +237,21 @@ MediaMatcher.prototype = {
 		var headElement = document.getElementsByTagName("head")[0];
 		if(headElement){
             var links = [];
-			if((initialLoad || this.loadDynamicCss) && !queryObject.isCssInDom){
+			if(initialLoad || this.loadDynamicCss){				
 				for(var index in queryObject['css']){
-					var link = document.createElement("link");
-					link.rel = "stylesheet";
-					link.type = "text/css";
-					link.id = this.id+'.'+queryObject.id+'.css'+index;
-					link.href = queryObject['css'][index];
-					headElement.appendChild(link);
-					links.push(link);
+					if(!queryObject.isCssInDom){
+						var link = document.createElement("link");
+						link.rel = "stylesheet";
+						link.type = "text/css";
+						if(this.nativeQuerySupport && this.loadDynamicCss) link.media = queryObject.queryString;
+						link.id = this.id+'.'+queryObject.id+'.css'+index;
+						link.href = queryObject['css'][index];
+						headElement.appendChild(link);
+						links.push(link);
+					}else if(this.nativeQuerySupport){
+						var link = document.getElementById(this.id+'.'+queryObject.id+'.css'+index);
+						links.push(link);
+					}
 				}
 				if(links.length > 0) queryObject.isCssInDom = true;
 			}
@@ -263,6 +265,7 @@ MediaMatcher.prototype = {
 	},
 
 	unloadStyles: function(queryObject){
+		if(this.nativeQuerySupport) return;
 		var headElement = document.getElementsByTagName("head")[0];
 		if(headElement && queryObject.isCssInDom){
 			for(var index in queryObject['css']){
@@ -447,6 +450,10 @@ MediaMatcher.prototype = {
     waitForCssIsLoaded: function(bool,maxTime){
         this.lazyCssLoad = bool;
         this.lazyCssLoadMaxTime = maxTime;
+    },
+	
+	supportNativeMediaQueries: function(bool){
+        this.nativeQuerySupport = bool;
     },
 	
 	forceDevice: function(device, time){
