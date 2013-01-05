@@ -36,9 +36,9 @@
 <h3>A lightweight and easy to use polyfill to synchronize Stylesheets (CSS) and JavaScripts (JS) when using CSS3 Media Queries</h3>
 
 <ul>
-<li>Version: 1.1 </li>
+<li>Version: 1.2 </li>
 <li>Created: 2012-01-04 </li>
-<li>Updated: 2012-12-09 </li>
+<li>Updated: 2013-01-05 </li>
 <li>Author: Andreas Britten</li>
 <li>Project: <a href="https://github.com/andreasBritten/MediaMatcher.js">https://github.com/andreasBritten/MediaMatcher.js</a>
 </li>
@@ -118,6 +118,12 @@
 </ul><pre>
     mediaMatcher.waitForCssIsLoaded(true,1000);
 </pre>
+
+<ul>
+<li>Define if you want to use native MediaQuery on CSS-Files. This will embed and load up all your CSS-Files from the start. So, switching between CSS-Files will be handled by the browser and not by our script.</li>
+</ul><pre>
+    mediaMatcher.supportNativeMediaQueries(true);
+</pre>  
 
 <ul>
 <li>Initialize (start up) your MediaMatcher and your done!</li>
