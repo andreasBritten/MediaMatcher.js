@@ -1,5 +1,7 @@
-html,body{
-	
+html{
+	-webkit-text-size-adjust: 100%;
+}
+html,body{	
 	margin: 0;
 	padding: 0;
 	font-family: Verdana,Arial;
@@ -18,7 +20,7 @@ h1{
 #wrapper{
 	margin-left:auto;
 	margin-right:auto;
-	width: 500px;
+	width: 300px;
 }
 #infobox{
     height: 150px;
@@ -66,7 +68,7 @@ p{
 }
 .page{
 	margin-top: 4px;
-	padding: 0;
+	padding: 0;	
 }
 h2{
 	font-size: 11px;

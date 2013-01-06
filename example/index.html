@@ -13,15 +13,14 @@
 		<script type="text/javascript" src="../src/MediaMatcher.min.js"></script>
 	</head>
 <body>
-<div id="wrapper">
+<div id="wrapper">	
 	<h1 id="headline"></h1>	
 	<div class="info" id="info"></div>
 	<div id="buttonDiv"><a id="button" href="#">Click me to reveal the current color of the box</a></div>
-	<div id="infobox"></div>		
-	<div class="foo">000px - 600px = red box</div>
-	<div class="foo">601px - 800px = blue box</div>
-	<div class="foo">801px - XXXpx = green box</div>
-	<p class="page">Project-Page: <a href="http://andreasbritten.github.com/MediaMatcher.js/">http://andreasbritten.github.com/MediaMatcher.js/</a></p>
+	<div id="infobox"></div>
+	<div class="foo">000px - 400px = red box</div>
+	<div class="foo">401px - 800px = blue box</div>
+	<div class="foo">801px - XXXpx = green box</div>		
 	<div id="logger">
 		<h2>Trigger-Logging:</h2>
 		<div id="log"><p></p></div>
@@ -36,7 +35,7 @@
     // You can also select the device for each query like so ::device::
     // MatchObject's (obj) can be define by passing the URL to an JSON-Object or by adding the object itself.
     var mediaMatcher = new MediaMatcher({
-        'screen and (min-width: 0px) and (max-width: 600px)': {
+        'screen and (min-width: 0px) and (max-width: 400px)': {
             'js':  ['./js/red.js'],
             'css': ['./css/red.css'],
             'obj': [{
@@ -58,7 +57,7 @@
 					}
 				}]
         },
-        'screen and (min-width: 601px) and (max-width: 800px)': {
+        'screen and (min-width: 401px) and (max-width: 800px)': {
             'js': 	['./js/blue.js'],
             'css': 	['./css/blue.css'],
             'obj': 	[{
@@ -134,7 +133,7 @@
     mediaMatcher.waitBeforeDynamicLoad(0);
 	
 	// Define if the Script should print out Debug-Information on the bottom of your page.
-    mediaMatcher.showInfo(true);
+    mediaMatcher.showInfo(false);
 
     // initialize and start up your MediaMatcher
     mediaMatcher.init();
