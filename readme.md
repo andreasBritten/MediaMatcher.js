@@ -1,9 +1,9 @@
 # MediaMatcher.js
 ### A lightweight and easy to use polyfill to synchronize Stylesheets (CSS) and JavaScripts (JS) when using CSS3 Media Queries
 
-- Version: 1.2 
+- Version: 1.3 
 - Created: 2012-01-04 
-- Updated: 2013-01-05 
+- Updated: 2013-01-06 
 - Author: Andreas Britten
 - Project: https://github.com/andreasBritten/MediaMatcher.js
 - Example: http://andreas-britten.de/mediamatcher/example/index.html
@@ -75,19 +75,31 @@ You are ready to use MediaMatcher after these steps:
  - Define in ms how long MediaMatchter should wait during window-resizing before it calculates it's new state. A value of 0ms means that the new state is calculated on every window-resize event providing a seemless response. By increasing the time you can achieve certain effects: Lower your data stream and improve the overall performance. For us a value of 75ms was a perfect compromise. Just try what time works best for you :)
 
 <pre>
-	mediaMatcher.waitBeforeDynamicLoad(75);	
+		mediaMatcher.waitBeforeDynamicLoad(75);	
 </pre>
 
  - Define if MediaMatcher should wait until all CSS files are loaded before the associated "MatchObject" is triggerd. You can also define a timeout in ms if the CSS is for some reason not available or took forever to load. WARNING: This only works correctly when a webserver delivers the CSS file (Apache, Tomcat, ...). On a lokal filesystem we saw some problems with this feature in some browsers (Chrome for example ). Also, it will not wait for CSS files you inclueded by an @import statement inside the loaded CSS file.
 
 <pre>
-	mediaMatcher.waitForCssIsLoaded(true,1000);
+		mediaMatcher.waitForCssIsLoaded(true,1000);
 </pre>
 
- - Define if you want to use native MediaQuery on CSS-Files. This will embed and load up all your CSS-Files from the start. So, switching between CSS-Files will be handled by the browser and not by our script.
+ - Define if you want to preload our CSS-Files to improve performance. If enabled, your Browser is able to cache all defined CSS-Files in advance. WARNING: This will only work if Cache-Headers of your CSS-Files do not disable caching.
 	
 <pre>
-	mediaMatcher.supportNativeMediaQueries(true);
+		mediaMatcher.preLoadCss(true);
+</pre>
+
+ - Define if you want to use native MediaQuery on CSS-Files if they are supported by the browser. This will embed and load up all your CSS-Files from the start. In that way, switching between CSS-Files will be handled by the browser and not by our script. WARNING: If enabled, there is no guarantee for a synchronized procedure of loading CSS before triggering your MatchObject.
+	
+<pre>
+		mediaMatcher.tryToSupportNativeMediaQueries(false);
+</pre>
+
+ - Define if MediaMatcher should print out Debug-Information at the bottom of your page.
+
+<pre>
+		mediaMatcher.showInfo(false);
 </pre>	
 
  - Initialize (start up) your MediaMatcher and your done!

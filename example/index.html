@@ -1,6 +1,8 @@
 <html>
 	<head>
 		<title>MediaMatcher - Example</title>
+		
+		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"/>
 		
 		<!-- link all static loaded script and css files -->
@@ -106,29 +108,33 @@
     // and which you would like to load and trigger just once when the page is loaded on the first time.
     mediaMatcher.dynamicLoadCss(true);
     mediaMatcher.dynamicLoadJS(false);
-    mediaMatcher.dynamicTriggerObj(true);
-	
-	
-
-    // Define if the User-Agent-Information should be displayed.
-    mediaMatcher.setShowInfo(false);
+    mediaMatcher.dynamicTriggerObj(true);	
 
     // Define if the Javascript should only be loaded/triggered after the CSS was completely loaded.
 	// Define a maxTime to wait (for example 500ms) for your CSS is loaded and integrated into the DOM.
 	// WARNING: This only works correctly when a webserver delivers the CSS file (Apache, Tomcat, ...). 
 	// On a lokal filesystem we saw some problems with this feature in some browsers (Chrome for example ).
-    mediaMatcher.waitForCssIsLoaded(true,1000);
+    mediaMatcher.waitForCssIsLoaded(true,3000);
+	
+	// Define if you want to preload our CSS-Files to improve performance.	
+	// If enabled, your Browser is able to cache all defined CSS-Files in advance.
+	// WARNING: This will only improve the performance if Cache-Headers of your CSS-Files allows caching.
+	mediaMatcher.preLoadCss(true);
 
-	// Define if you want to use native MediaQuery on CSS-Files.
+	// Define if you want to use native MediaQuery on CSS-Files if supported by the browser. 
 	// This will embed and load up all your CSS-Files from the start.
-	// So, switching between CSS-Files will be handled by the browser. 
-	mediaMatcher.supportNativeMediaQueries(true);	
+	// In that way, switching between CSS-Files will be handled by the browser and not by our script.
+	// WARNING: If enabled, we cannot guarantee a synchronized procedure of loading CSS before trigger your OBJ.
+	mediaMatcher.tryToSupportNativeMediaQueries(false);		
 
     // Define in ms how long MediaMatchter should wait during window-resizing before it calculates it's new state.
     // A value of 0ms means that the new state is calculated on every window-resize event providing a seemless response.
     // By increasing the time you can achieve certain effects, lower your data stream and improve the overall performance.
     // Just try what time works best for you.
     mediaMatcher.waitBeforeDynamicLoad(0);
+	
+	// Define if the Script should print out Debug-Information on the bottom of your page.
+    mediaMatcher.showInfo(true);
 
     // initialize and start up your MediaMatcher
     mediaMatcher.init();

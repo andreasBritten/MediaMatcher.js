@@ -4,9 +4,9 @@
  * Project-Page: https://github.com/andreasBritten/MediaMatcher.js
  * 
  * Created:		2012-01-04	
- * Modified:	2012-12-09
+ * Modified:	2013-01-06
  *
- * @version 1.1
+ * @version 1.3
  * @author Andreas Britten
  */
 var mediaMatcherObjectCount = 0;
@@ -14,13 +14,14 @@ var mediaMatcherObjectCount = 0;
 function MediaMatcher(matchObject){		
 	this.queryObjects = [];
 	this.nativeQuerySupport = false;
+	this.preLoadingCss = false;
 	this.matcher = matchObject;			
 	this.loadDynamicCss = true;	
 	this.loadDynamicObj = true;
 	this.loadDynamicJS = true;	
 	this.initialLoad = true;
 	this.waitingTime = 0;
-	this.showInfo = false;
+	this.showInformation = false;
 	this.infoBox = null;
 	this.timer = null;
 	this.loadingInterval = null;
@@ -61,24 +62,32 @@ MediaMatcher.prototype = {
 				ref : []
 			} );
 			id+=1;
-		}
-		if(this.loadDynamicCss || this.loadDynamicObj || this.loadDynamicJS){			
-			var callbackFunction = this.getResizeCallback();
-			if(window.orientation != undefined) window.onorientationchange = callbackFunction;
-			else if(window.addEventListener) window.addEventListener( "resize", callbackFunction, false );
-			else if(window.attachEvent) window.attachEvent( "onresize", callbackFunction);
+		}		
+		if(this.preLoadingCss){
+			for( var index in this.queryObjects){
+				var currentObject = this.queryObjects[index];
+				for(var i in currentObject.css){
+					this.ajaxCall(currentObject.css[i],function(data){});
+				}
+			}
 		}
 		if(this.nativeQuerySupport && this.loadDynamicCss){
 			for( var index in this.queryObjects){
 				var currentObject = this.queryObjects[index];
 				this.loadStyles(true,currentObject,function(){});
 			}
+		}		
+		if(this.loadDynamicCss || this.loadDynamicObj || this.loadDynamicJS){			
+			var callbackFunction = this.getResizeCallback();
+			if(window.orientation != undefined) window.onorientationchange = callbackFunction;
+			else if(window.addEventListener) window.addEventListener( "resize", callbackFunction, false );
+			else if(window.attachEvent) window.attachEvent( "onresize", callbackFunction);
 		}
 		this.updateMedia();
 	},
 
-	updateMedia: function(){
-		var that = this;
+	updateMedia: function(){		
+		var that = this;		
 		if(this.timer != null){window.clearTimeout(this.timer); this.timer=null;};
 
 		var matching = [];
@@ -169,18 +178,23 @@ MediaMatcher.prototype = {
 			currentObject.isLoaded = true;
 		}
 		this.initialLoad = false;
+		this.printInfo();
 	},
 
 	matchingMedia: function(queryObject){	
-		if( window.matchMedia ){ 		
+		if( window.matchMedia ){		
 			return window.matchMedia(queryObject.queryString).matches;
-		}else{
-			var documentWidth = window.document.documentElement["clientWidth"];
-			var bodyWidth = window.document.body != null && window.document.body["clientWidth"];
-			var isCompatMode =  window.document.compatMode === "CSS1Compat";		
-			var currentWidth = isCompatMode && documentWidth || bodyWidth || documentWidth;
+		}else{			
+			var currentWidth = this.getCurrentWindowWidth();
 			return (currentWidth >= queryObject.minWidth && currentWidth <= queryObject.maxWidth);
 		}
+	},
+	
+	getCurrentWindowWidth: function(){
+		var documentWidth = window.document.documentElement["clientWidth"];
+		var bodyWidth = window.document.body != null && window.document.body["clientWidth"];
+		var isCompatMode =  window.document.compatMode === "CSS1Compat";		
+		return isCompatMode && documentWidth || bodyWidth || documentWidth;
 	},
 	
 	matchingDevice: function(queryObject){		
@@ -366,7 +380,6 @@ MediaMatcher.prototype = {
 	
 	detectDevice: function(){
 		var ua = navigator.userAgent.toLowerCase();
-        this.printInfo(ua);
 		if(Boolean(ua.match(/iphone/)||ua.match(/ipod/)||ua.match(/ipad/)||ua.match(/blackberry/)||ua.match(/playbook/)||ua.match(/android/)|| ua.match(/(windows phone os|windows ce|windows mobile)/)||ua.match(/mobile/)||ua.match(/(gt-p1000|sgh-t849|shw-m180s)/)||ua.match(/tablet pc/)||ua.match(/tablet/)||ua.match(/(palmos|palmsource| pre\/)/)||ua.match(/kindle/)||ua.match(/(opera mini|iemobile|sonyericsson|smartphone)/)))
 			return "mobile";		
 		if(Boolean(ua.match(/hbbtv/)||ua.match(/nettv/)||ua.match(/ce\-html/)||ua.match(/cehtml/)||ua.match(/large screen/)||ua.match(/googletv/)||ua.match(/large/)))
@@ -391,9 +404,12 @@ MediaMatcher.prototype = {
     createInfoBox: function(){
         if(this.infoBox === null){
             this.infoBox = document.createElement("div");
-            this.infoBox.style.position = 'absolute';
-            this.infoBox.style.top = '0px';
+            this.infoBox.style.position = 'fixed';
+            this.infoBox.style.bottom = '0px';
             this.infoBox.style.left = '0px';
+			this.infoBox.style.width = '100%';
+			this.infoBox.style.fontSize = '11px';
+			this.infoBox.style.fontFamily = 'monospace';
             this.infoBox.style.backgroundColor = '#000';
             this.infoBox.style.color = '#fff';
             this.infoBox.style.zIndex = '99999';
@@ -404,19 +420,34 @@ MediaMatcher.prototype = {
         this.createInfoBox();
         var bodyElement = document.getElementsByTagName("body")[0];
         if(bodyElement){
-            if(this.showInfo) bodyElement.appendChild(this.infoBox);
+            if(this.showInformation) bodyElement.appendChild(this.infoBox);
         }
     },
 
-    printInfo: function(info){
-        if(this.showInfo === true){
+    printInfo: function(){
+        if(this.showInformation === true){
             this.handleInfoBox();
+			var info = '== MediaMatcher Information ==';
+			//info += '<br/>- nativeMediaQuerySupport: '+ this.nativeQuerySupport;
+			info += '<br/>- windowWidth: '+ this.getCurrentWindowWidth()+'px';
+			info += '<br/>- currentlyMatching: ';
+			var first = true;
+			for( var index in this.queryObjects){
+				var currentObject = this.queryObjects[index];
+				if(currentObject.isMatching){
+					var div = first ? '' : ' | ';
+					info += '"'+currentObject.queryString+'"'+ div;
+					first = false;
+				}
+			}
+			info += '<br/>- detectedDevice: '+ this.device;
+			info += '<br/>- userAgent: '+ navigator.userAgent.toLowerCase();			
             this.infoBox.innerHTML = info;
         }
     },
 
-    setShowInfo: function(bool){
-        this.showInfo = bool;
+    showInfo: function(bool){
+        this.showInformation = bool;
         this.handleInfoBox();
     },
 
@@ -452,8 +483,12 @@ MediaMatcher.prototype = {
         this.lazyCssLoadMaxTime = maxTime;
     },
 	
-	supportNativeMediaQueries: function(bool){
+	tryToSupportNativeMediaQueries: function(bool){
         this.nativeQuerySupport = bool;
+    },
+	
+	preLoadCss: function(bool){
+        this.preLoadingCss = bool;
     },
 	
 	forceDevice: function(device, time){
