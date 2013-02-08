@@ -36,9 +36,9 @@
 <h3>A lightweight and easy to use polyfill to synchronize Stylesheets (CSS) and JavaScripts (JS) when using CSS3 Media Queries</h3>
 
 <ul>
-<li>Version: 1.3 </li>
+<li>Version: 1.4</li>
 <li>Created: 2012-01-04 </li>
-<li>Updated: 2013-01-06 </li>
+<li>Updated: 2013-02-08 </li>
 <li>Author: Andreas Britten</li>
 <li>Project: <a href="https://github.com/andreasBritten/MediaMatcher.js">https://github.com/andreasBritten/MediaMatcher.js</a>
 </li>
@@ -120,15 +120,15 @@
 </pre>
 
 <ul>
-<li>Define if you want to preload our CSS-Files to improve performance. If enabled, your Browser is able to cache all defined CSS-Files in advance. WARNING: This will only work if Cache-Headers of your CSS-Files do not disable caching.</li>
+<li>Define if you want to use native MediaQuery on CSS-Files if they are supported by the browser. This will embed and load up all your CSS-Files from the start. In that way, switching between CSS-Files will be handled by the browser and not by our script.</li>
 </ul><pre>
-        mediaMatcher.preLoadCss(true);
+        mediaMatcher.tryToSupportNativeMediaQueries(true);
 </pre>
 
 <ul>
-<li>Define if you want to use native MediaQuery on CSS-Files if they are supported by the browser. This will embed and load up all your CSS-Files from the start. In that way, switching between CSS-Files will be handled by the browser and not by our script. WARNING: If enabled, there is no guarantee for a synchronized procedure of loading CSS before triggering your MatchObject.</li>
+<li>Define if you want to preload our CSS-Files to improve performance. If enabled, your Browser is able to cache all defined CSS-Files in advance. WARNING: This will only work if Cache-Headers of your CSS-Files do not disable caching.</li>
 </ul><pre>
-        mediaMatcher.tryToSupportNativeMediaQueries(false);
+        mediaMatcher.preLoadCss(false);
 </pre>
 
 <ul>
