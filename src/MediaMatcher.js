@@ -4,9 +4,9 @@
  * Project-Page: https://github.com/andreasBritten/MediaMatcher.js
  * 
  * Created:		2012-01-04	
- * Modified:	2013-01-06
+ * Modified:	2013-02-08
  *
- * @version 1.3
+ * @version 1.4
  * @author Andreas Britten
  */
 var mediaMatcherObjectCount = 0;
@@ -79,8 +79,8 @@ MediaMatcher.prototype = {
 		}		
 		if(this.loadDynamicCss || this.loadDynamicObj || this.loadDynamicJS){			
 			var callbackFunction = this.getResizeCallback();
-			if(window.orientation != undefined) window.onorientationchange = callbackFunction;
-			else if(window.addEventListener) window.addEventListener( "resize", callbackFunction, false );
+			//if(window.orientation != undefined) window.onorientationchange = callbackFunction;
+			if(window.addEventListener) window.addEventListener( "resize", callbackFunction, false );
 			else if(window.attachEvent) window.attachEvent( "onresize", callbackFunction);
 		}
 		this.updateMedia();

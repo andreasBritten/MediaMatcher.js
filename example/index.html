@@ -114,17 +114,16 @@
 	// WARNING: This only works correctly when a webserver delivers the CSS file (Apache, Tomcat, ...). 
 	// On a lokal filesystem we saw some problems with this feature in some browsers (Chrome for example ).
     mediaMatcher.waitForCssIsLoaded(true,3000);
-	
-	// Define if you want to preload our CSS-Files to improve performance.	
-	// If enabled, your Browser is able to cache all defined CSS-Files in advance.
-	// WARNING: This will only improve the performance if Cache-Headers of your CSS-Files allows caching.
-	mediaMatcher.preLoadCss(true);
 
 	// Define if you want to use native MediaQuery on CSS-Files if supported by the browser. 
 	// This will embed and load up all your CSS-Files from the start.
-	// In that way, switching between CSS-Files will be handled by the browser and not by our script.
-	// WARNING: If enabled, we cannot guarantee a synchronized procedure of loading CSS before trigger your OBJ.
-	mediaMatcher.tryToSupportNativeMediaQueries(false);		
+	// In that way, switching between CSS-Files will be handled by the browser and not by our script.	
+	mediaMatcher.tryToSupportNativeMediaQueries(true);
+	
+	// Define if you want to preload our CSS-Files to improve performance.	
+	// If enabled, your Browser is able to cache all defined CSS-Files in advance.
+	// WARNING: This will only improve the performance if Cache-Headers of your CSS-Files allows caching.	
+	mediaMatcher.preLoadCss(false);
 
     // Define in ms how long MediaMatchter should wait during window-resizing before it calculates it's new state.
     // A value of 0ms means that the new state is calculated on every window-resize event providing a seemless response.
